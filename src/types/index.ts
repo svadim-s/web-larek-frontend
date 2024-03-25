@@ -27,3 +27,8 @@ export interface IOrderResult {
   id: string;
   total: number;
 }
+
+export type ApiListResponse<Type> = {
+  total: number,
+  items: Type[]
+};
