@@ -37,122 +37,130 @@ const orderForm = new Order(events, cloneTemplate(orderTemplate));
 const contactsForm = new Contacts(events, cloneTemplate(contactsTemplate));
 
 events.on('modal:open', () => {
-  page.locked = true;
+	page.locked = true;
 });
 
 events.on('modal:close', () => {
-  page.locked = false;
+	page.locked = false;
 });
 
 events.on('card:select', (item: IProduct) => {
-  appData.setPreview(item);
+	appData.setPreview(item);
 });
 
 events.on('items:change', (items: IProduct[]) => {
-  page.catalog = items.map((item) => {
-    const card = new Card(cloneTemplate(cardCatalogTemplate), {
-      onClick: () => events.emit('card:select', item),
-    });
+	page.catalog = items.map((item) => {
+		const card = new Card(cloneTemplate(cardCatalogTemplate), {
+			onClick: () => events.emit('card:select', item),
+		});
 
-    return card.render(item);
-  });
+		return card.render(item);
+	});
 });
 
 events.on('preview:change', (item: IProduct) => {
-  const card = new Card(cloneTemplate(cardPreviewTemplate), {
-    onClick: () => {
-      if (appData.inBasket(item)) {
-        appData.removeFromBasket(item);
-        card.button = 'В корзину';
-      } else {
-        appData.addToBasket(item);
-        card.button = 'Удалить из корзины';
-      }
-    },
-  });
+	const card = new Card(cloneTemplate(cardPreviewTemplate), {
+		onClick: () => {
+			if (appData.inBasket(item)) {
+				appData.removeFromBasket(item);
+				card.button = 'В корзину';
+			} else {
+				appData.addToBasket(item);
+				card.button = 'Удалить из корзины';
+			}
+		},
+	});
 
-  card.button = appData.inBasket(item) ? 'Удалить из корзины' : 'В корзину';
+	card.button = appData.inBasket(item) ? 'Удалить из корзины' : 'В корзину';
 
-  modal.render({ content: card.render(item) })
+	modal.render({ content: card.render(item) });
 });
 
 events.on('basket:change', () => {
-  page.counter = appData.basket.items.length;
+	page.counter = appData.basket.items.length;
 
-  basket.items = appData.basket.items.map((id) => {
-    const item = appData.items.find(item => item.id === id);
-    const card = new Card(cloneTemplate(cardBasketTemplate), {
-      onClick: () => appData.removeFromBasket(item)
-    });
+	basket.items = appData.basket.items.map((id) => {
+		const item = appData.items.find((item) => item.id === id);
+		const card = new Card(cloneTemplate(cardBasketTemplate), {
+			onClick: () => appData.removeFromBasket(item),
+		});
 
-    return card.render(item)
-  });
+		return card.render(item);
+	});
 
-  basket.total = appData.basket.total;
-})
+	basket.total = appData.basket.total;
+});
 
 events.on('basket:open', () => {
-  modal.render({
-    content: basket.render()
-  });
+	modal.render({
+		content: basket.render(),
+	});
 });
 
 events.on('order:open', () => {
-  modal.render({
-    content: orderForm.render({
-      payment: 'card',
-      address: '',
-      valid: false,
-      errors: [],
-    })
-  });
+	modal.render({
+		content: orderForm.render({
+			payment: 'card',
+			address: '',
+			valid: false,
+			errors: [],
+		}),
+	});
 });
 
-events.on(/^order\..*:change$/, (data: { field: keyof OrderForm, value: string }) => {
-  appData.setOrderField(data.field, data.value);
-});
+events.on(
+	/^order\..*:change$/,
+	(data: { field: keyof OrderForm; value: string }) => {
+		appData.setOrderField(data.field, data.value);
+	}
+);
 
 events.on('formErrors:change', (err: Partial<OrderForm>) => {
-  const { payment, address, email, phone } = err;
-  orderForm.valid = !payment && !address;
-  contactsForm.valid = !email && !phone;
+	const { payment, address, email, phone } = err;
+	orderForm.valid = !payment && !address;
+	contactsForm.valid = !email && !phone;
 });
 
 events.on('order:submit', () => {
-  modal.render({
-    content: contactsForm.render({
-      email: '',
-      phone: '',
-      valid: false,
-      errors: [],
-    })
-  });
+	modal.render({
+		content: contactsForm.render({
+			email: '',
+			phone: '',
+			valid: false,
+			errors: [],
+		}),
+	});
 });
 
-events.on(/^contacts\..*:change$/, (data: { field: keyof OrderForm, value: string }) => {
-  appData.setOrderField(data.field, data.value);
-});
+events.on(
+	/^contacts\..*:change$/,
+	(data: { field: keyof OrderForm; value: string }) => {
+		appData.setOrderField(data.field, data.value);
+	}
+);
 
 events.on('contacts:submit', () => {
-  api.orderProducts(appData.order)
-    .then((res) => {
-      const success = new Success(cloneTemplate(successTemplate), {
-        onClick: () => {
-          modal.close();
-          appData.clearBasket();
-          events.emit('order:ready');
-        }
-      })
+	api
+		.orderProducts(appData.order)
+		.then((res) => {
+			const success = new Success(cloneTemplate(successTemplate), {
+				onClick: () => {
+					modal.close();
+					appData.clearBasket();
+					events.emit('order:ready');
+				},
+			});
 
-      success.total = res.total;
+			success.total = res.total;
 
-      modal.render({
-        content: success.render({})
-      });
-    })
-    .catch(err => console.error(err));
+			modal.render({
+				content: success.render({}),
+			});
+		})
+		.catch((err) => console.error(err));
 });
 
-api.getProductsList()
-  .then(appData.setItems.bind(appData))
-  .catch(err => console.error(err));
+api
+	.getProductsList()
+	.then(appData.setItems.bind(appData))
+	.catch((err) => console.error(err));
