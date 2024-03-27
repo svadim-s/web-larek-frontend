@@ -114,12 +114,12 @@ export class View<T> extends Component<T> {
 
 Свойства:
 
-`protected _title: HTMLElement;`
-`protected _image?: HTMLImageElement;`
-`protected _price: HTMLElement;`
-`protected _category?: HTMLElement;`
-`protected _description?: HTMLElement;`
-`protected _button?: HTMLButtonElement;`
+- `protected _title: HTMLElement;`
+- `protected _image?: HTMLImageElement;`
+- `protected _price: HTMLElement;`
+- `protected _category?: HTMLElement;`
+- `protected _description?: HTMLElement;`
+- `protected _button?: HTMLButtonElement;`
 
 ```
 private categoryColors: Map<string, string> = new Map([
