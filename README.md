@@ -100,15 +100,67 @@ yarn build
 
 # Слой представления View
 
-Все классы представления наследуются от класса `Component` или `View`
+Все классы представления наследуются от класса `Component` или `View`.
+
+```
+export class View<T> extends Component<T> {
+  constructor(protected readonly events: IEvents, container: HTMLElement)
+}
+```
 
 ## Класс Card
 
 Класс карточки товара и отображения ее данных. Название товара, описание, изображение, стоимость, категория.
 
+Свойства:
+
+`protected _title: HTMLElement;`
+`protected _image?: HTMLImageElement;`
+`protected _price: HTMLElement;`
+`protected _category?: HTMLElement;`
+`protected _description?: HTMLElement;`
+`protected _button?: HTMLButtonElement;`
+
+```
+private categoryColors: Map<string, string> = new Map([
+  ['софт-скил', '#83FA9D'],
+  ['другое', '#FAD883'],
+  ['дополнительное', '#B783FA'],
+  ['кнопка', '#83DDFA'],
+  ['хард-скил', '#FAA083']
+]);
+```
+
+Методы:
+
+* ```set id(value: string)``` // Установить идентификатор для элемента.
+* ```get id(): string``` // Получить идентификатор элемента.
+* ```set title(value: string)``` // Установить заголовок элемента.
+* ```get title(): string``` // Получить заголовок элемента.
+* ```set price(value: string)``` // Установить цену элемента.
+* ```get price(): string``` // Получить цену элемента.
+* ```set category(value: string)``` // Установить категорию элемента.
+* ```get category(): string``` // Получить категорию элемента.
+* ```set image(value: string)``` // Установить изображение для элемента.
+* ```set description(value: string | string[])``` // Установить описание элемента.
+* ```set button(value: string)``` // Установить текст для кнопки элемента.
+
 ## Класс Page
 
 Отвечает за отображение главной страницы с каталогом товаров, а также счетчика товаров добавленных в корзину. Блокирует скролл страницы при открытии модального окна. При клике на корзину Генерирует событие `basket:open`.
+
+Свойства:
+
+- `protected _counter: HTMLElement;`
+- `protected _catalog: HTMLElement;`
+- `protected _wrapper: HTMLElement;`
+- `protected _basket: HTMLElement;`
+
+Методы:
+
+* ```set counter(value: number)``` // Установить счетчик элемента.
+* ```set catalog(items: HTMLElement[])``` // Установить каталог элемента.
+* ```set locked(value: boolean)``` // Заблокировать/разблокировать элемент.
 
 ## Класс Basket
 
@@ -116,25 +168,86 @@ yarn build
 Списока товаров в корзине - `items: HTMLElement[]`
 Суммарной стоимости товаров - `total: number`
 
+Свойства:
+
+- `static template = ensureElement<HTMLTemplateElement>('#basket');`
+- `protected _list: HTMLElement;`
+- `protected _total: HTMLElement;`
+- `protected _button: HTMLElement;`
+
+Методы:
+
+* ```set items(items: HTMLElement[])``` // Установить элементы.
+* ```set selected(items: string[])``` // Установить выбранные элементы.
+* ```set total(total: number)``` // Установить общую стоимость элементов.
+
 ## Класс Form
 
 Отвечает за работу с формами. Обрабатывает события ввода данных в поля формы, отображет ошибки валидации и состояние активности кнопки для отправки формы, которое зависит от валидности формы. Генерирует событие отправки формы. Например `order:submit` - событие отправки формы со способом платежа и адресом. 
+
+Свойства:
+
+- `protected _submit: HTMLButtonElement;`
+- `protected _errors: HTMLElement;`
+
+Методы:
+
+* ```protected onInputChange(field: keyof T, value: string)``` // Обработчик события изменения поля.
+* ```set valid(value: boolean)``` // Установить статус валидности формы.
+* ```set errors(value: string)``` // Установить ошибки формы.
+* ```render(state: Partial<T> & IFormState)``` // Рендерить элемент.
 
 ## Класс Contacts
 
 Наследуется от класса `Form`, упрвляет отображением полей ввода формы.
 
+Методы:
+
+* ```set phone(value: string)``` //Установить значение поля телефона.
+* ```set email(value: string)``` // Установить значение поля электронной почты.
+
 ## Класс Order
 
 Наследуется от класса `Form`, упрвляет отображением полей ввода формы и переключения способа оплаты.
+
+Свойства:
+
+- `protected _paymentCard: HTMLButtonElement;`
+- `protected _paymentCash: HTMLButtonElement;`
+
+Методы:
+
+* ```set payment(value: PaymentMethod)``` // Установить метод оплаты.
+* ```set address(value: string)``` // Установить значение поля адреса.
 
 ## Класс Modal
 
 Отвечает за реализацию модального окна в котором находится какое-то содержимое `content: HTMLElement`. Содержит методы `open` и `close`
 
+Свойства:
+
+- `protected _closeButton: HTMLButtonElement;`
+- `protected _content: HTMLElement;`
+
+Методы:
+
+* ```set content(value: HTMLElement)``` // Отобразить контент
+* ```open()``` // Открыть модальное окно
+* ```close()``` // Закрыть модальное окно
+* ```render(data: IModalData): HTMLElement``` // Рендерить модальное окно.
+
 ## Класс Success
 
 Отвечает за отображение содержимого модального окна успешного выполнения заказа.
+
+Свойства:
+
+- `protected _close: HTMLElement;`
+- `protected _total: HTMLElement;`
+
+Методы:
+
+* ```set total(total: number)``` // Установить итоговую стоимость
 
 # Слой данных Model
 
@@ -150,12 +263,24 @@ yarn build
 - `order` - объект с информацией о заказе
 - `formErrors` - объект, содержащий ошибки формы
 
+Методы:
+
+* ```clearBasket()``` // Очистить корзину
+* ```setItems(items: IProduct[])``` // Установить элементы продуктов.
+* ```setPreview(item: IProduct)``` // Установить предпросмотр продукта в модальном окне.
+* ```inBasket(item: IProduct)``` // Проверка нахождения товара в корзине
+* ```addToBasket(item: IProduct)``` // Добавить товар в корзину
+* ```removeFromBasket(item: IProduct)``` // Удалить товар из корзины
+* ```setPaymentMethod(method: PaymentMethod)``` // Установить способ оплаты
+* ```setOrderField(field: keyof OrderForm, value: string)``` // Установить значение поля заказа.
+* ```validateOrder()``` // Проверить валидность заказа.
+
 ## Класс WebLarekAPI
 
 Наследуется от класса Api и добавляет методы:
-- `getProductItem`
-- `getProductList`
-- `orderProducts`
+- `getProductItem(id: string): Promise<IProduct>`
+- `getProductsList(): Promise<IProduct[]>`
+- `orderProducts(order: IOrder): Promise<IOrderResult>`
 
 # Презентер (Взаимодействие компонентов)
 
