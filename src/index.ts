@@ -146,7 +146,6 @@ events.on('contacts:submit', () => {
 			const success = new Success(cloneTemplate(successTemplate), {
 				onClick: () => {
 					modal.close();
-					appData.clearBasket();
 					events.emit('order:ready');
 				},
 			});
@@ -156,6 +155,8 @@ events.on('contacts:submit', () => {
 			modal.render({
 				content: success.render({}),
 			});
+
+			appData.clearBasket();
 		})
 		.catch((err) => console.error(err));
 });

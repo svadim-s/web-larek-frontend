@@ -33,6 +33,14 @@ export class Basket extends View<IBasketView> {
 
 	set items(items: HTMLElement[]) {
 		if (items.length) {
+			items.forEach((item, index) => {
+				const itemIndex = item.querySelector('.basket__item-index');
+
+				if (itemIndex) {
+					itemIndex.textContent = (index + 1).toString();
+				}
+			});
+
 			this._list.replaceChildren(...items);
 			this.setDisabled(this._button, false);
 		} else {
