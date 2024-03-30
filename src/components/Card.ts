@@ -31,7 +31,7 @@ export class Card extends Component<IProduct> {
 		this._image = container.querySelector(`.card__image`);
 		this._category = container.querySelector(`.card__category`);
 		this._button = container.querySelector(`.card__button`);
-		this._description = container.querySelector(`.card__description`);
+		this._description = container.querySelector(`.card__text`);
 
 		if (actions?.onClick) {
 			if (this._button) {
